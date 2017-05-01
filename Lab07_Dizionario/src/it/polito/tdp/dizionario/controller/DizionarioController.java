@@ -1,8 +1,10 @@
 package it.polito.tdp.dizionario.controller;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.dizionario.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,6 +13,8 @@ import javafx.scene.control.TextField;
 
 public class DizionarioController {
 
+	private Model model;
+	
 	@FXML
 	private ResourceBundle resources;
 	@FXML
@@ -30,15 +34,29 @@ public class DizionarioController {
 
 	@FXML
 	void doReset(ActionEvent event) {
-		txtResult.setText("Reset!");
+		model.doReset();
+		txtResult.clear();
+		inputNumeroLettere.clear();
+		inputParola.clear();
 	}
 
 	@FXML
 	void doGeneraGrafo(ActionEvent event) {
+		int numeroLettere=0;
+		try{
+			numeroLettere=Integer.parseInt(inputNumeroLettere.getText());
+		}catch(NumberFormatException nfe){
+			txtResult.setText("Inserire un numero intero!");
+			return;
+		}
 
 		try {
-			txtResult.setText("Controller -- TODO!");
-			
+			List <String> grafo= model.createGraph(numeroLettere);
+			if(grafo.size()==0){
+				txtResult.setText("Nessuna parola trovata");
+				return;	
+			}
+			txtResult.setText(""+grafo);
 		} catch (RuntimeException re) {
 			txtResult.setText(re.getMessage());
 		}
@@ -48,7 +66,8 @@ public class DizionarioController {
 	void doTrovaGradoMax(ActionEvent event) {
 		
 		try {
-			txtResult.setText("Controller -- TODO!");
+			String risultato=model.findMaxDegree();
+			txtResult.setText(risultato);
 
 		} catch (RuntimeException re) {
 			txtResult.setText(re.getMessage());
@@ -57,13 +76,24 @@ public class DizionarioController {
 
 	@FXML
 	void doTrovaVicini(ActionEvent event) {
-		
+		String parolaInserita= inputParola.getText();
 		try {
-			txtResult.setText("Controller -- TODO!");
+			List <String> risultati=model.displayNeighbours(parolaInserita);
+			if (risultati.size()==0){
+				txtResult.setText("Nessun vicino trovato!");
+				return;
+			}
+			txtResult.setText(""+risultati);
+			
 
 		} catch (RuntimeException re) {
 			txtResult.setText(re.getMessage());
 		}
+	}
+
+
+	public void setModel(Model model) {
+		this.model = model;
 	}
 
 	@FXML
